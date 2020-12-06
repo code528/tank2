@@ -4,16 +4,11 @@ import com.zy.tank.TankFrame;
 import com.zy.tank.tankenum.Direction;
 import com.zy.tank.tankenum.Group;
 import com.zy.tank.util.ResourceMgr;
-import org.junit.Assert;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Graphics;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Random;
 
-public class Tank {
+public class Player {
     private int x;
     private int y;
     private Direction direction;
@@ -26,11 +21,11 @@ public class Tank {
     // down标识
     private boolean bD;
     private static final int SPEED = 5;
-    private boolean moving = true;
+    private boolean moving = false;
     private Group group;
     private boolean isAlive = true;
 
-    public Tank(int x, int y, Direction direction,Group group) {
+    public Player(int x, int y, Direction direction, Group group) {
         this.x = x;
         this.y = y;
         this.direction = direction;
@@ -56,7 +51,48 @@ public class Tank {
                 g.drawImage(ResourceMgr.goodTankD, x, y, null);
                 break;
         }
+
         move();
+    }
+
+    public void keyPressed(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        switch (keyCode) {
+            case KeyEvent.VK_LEFT:
+                bL = true;
+                break;
+            case KeyEvent.VK_RIGHT:
+                bR = true;
+                break;
+            case KeyEvent.VK_DOWN:
+                bD = true;
+                break;
+            case KeyEvent.VK_UP:
+                bU = true;
+                break;
+        }
+        setTankDriection();
+    }
+
+    private void setTankDriection() {
+        if (!bL && !bR && !bD && !bU) {
+            moving = false;
+        } else {
+            moving = true;
+            if (bL && !bR && !bD && !bU) {
+                direction = Direction.L;
+            }
+            if (!bL && bR && !bD && !bU) {
+                direction = Direction.R;
+            }
+            if (!bL && !bR && bD && !bU) {
+                direction = Direction.D;
+            }
+            if (!bL && !bR && !bD && bU) {
+                direction = Direction.U;
+            }
+        }
+
     }
 
     private void move() {
@@ -77,17 +113,34 @@ public class Tank {
                 y -= SPEED;
                 break;
         }
-        Random random = new Random();
-        if (random.nextInt(100) > 90) {
-            direction = Direction.randmDirection();
-            fire();
+    }
+
+    public void keyReleased(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        switch (keyCode) {
+            case KeyEvent.VK_LEFT:
+                bL = false;
+                break;
+            case KeyEvent.VK_RIGHT:
+                bR = false;
+                break;
+            case KeyEvent.VK_DOWN:
+                bD = false;
+                break;
+            case KeyEvent.VK_UP:
+                bU = false;
+                break;
+            case KeyEvent.VK_CONTROL:
+                fire();
+                break;
         }
+        setTankDriection();
     }
 
     private void fire() {
         int bx = x + ResourceMgr.goodTankU.getWidth()/2 - ResourceMgr.bulletU.getWidth()/ 2;
         int by = y + ResourceMgr.goodTankU.getHeight()/2 - ResourceMgr.bulletU.getHeight()/2;
-        TankFrame.INSTANCE.add(new Bullt(bx, by, direction, Group.BAD));
+        TankFrame.INSTANCE.add(new Bullt(bx, by, direction, Group.GOOD));
     }
 
     public int getX() {
@@ -116,13 +169,5 @@ public class Tank {
 
     public void die() {
         this.isAlive = false;
-    }
-
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(Group group) {
-        this.group = group;
     }
 }

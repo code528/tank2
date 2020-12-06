@@ -5,9 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-        TankFrame frame = new TankFrame();
 
-        frame.setVisible(true);
+        TankFrame.INSTANCE.setVisible(true);
 
         for (;;) {
             try {
@@ -15,7 +14,7 @@ public class Main {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            frame.repaint();
+            TankFrame.INSTANCE.repaint();
         }
     }
 }
