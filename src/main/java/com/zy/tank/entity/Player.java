@@ -1,14 +1,19 @@
 package com.zy.tank.entity;
 
 import com.zy.tank.TankFrame;
+import com.zy.tank.manager.PropertyMgr;
+import com.zy.tank.strategy.DefaultFireStrategy;
+import com.zy.tank.strategy.FireStrategy;
+import com.zy.tank.strategy.ForeDirFireStrategy;
+import com.zy.tank.strategy.LeftRightDirFireStrategy;
 import com.zy.tank.tankenum.Direction;
 import com.zy.tank.tankenum.Group;
-import com.zy.tank.util.ResourceMgr;
+import com.zy.tank.manager.ResourceMgr;
 
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 
-public class Player {
+public class Player extends AbstraceGameObject {
     private int x;
     private int y;
     private Direction direction;
@@ -24,12 +29,14 @@ public class Player {
     private boolean moving = false;
     private Group group;
     private boolean isAlive = true;
+    private FireStrategy fireStrategy;
 
     public Player(int x, int y, Direction direction, Group group) {
         this.x = x;
         this.y = y;
         this.direction = direction;
         this.group = group;
+        this.initStrategy();
     }
 
     public void paint(Graphics g) {
@@ -137,10 +144,21 @@ public class Player {
         setTankDriection();
     }
 
+    private void initStrategy() {
+        String strategy = (String)PropertyMgr.getPropertyValue("fireStrategy");
+        try {
+            Class<?> aClass = Class.forName(strategy);
+            fireStrategy = (FireStrategy) aClass.newInstance();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+    }
     private void fire() {
-        int bx = x + ResourceMgr.goodTankU.getWidth()/2 - ResourceMgr.bulletU.getWidth()/ 2;
-        int by = y + ResourceMgr.goodTankU.getHeight()/2 - ResourceMgr.bulletU.getHeight()/2;
-        TankFrame.INSTANCE.add(new Bullt(bx, by, direction, Group.GOOD));
+        fireStrategy.fire(this);
     }
 
     public int getX() {
@@ -169,5 +187,21 @@ public class Player {
 
     public void die() {
         this.isAlive = false;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

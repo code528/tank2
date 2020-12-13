@@ -1,4 +1,4 @@
-package com.zy.tank.util;
+package com.zy.tank.manager;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;

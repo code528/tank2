@@ -1,8 +1,12 @@
 package com.zy.tank;
 
+import com.zy.tank.entity.Explode;
+import com.zy.tank.entity.AbstraceGameObject;
 import com.zy.tank.entity.Bullt;
 import com.zy.tank.entity.Player;
 import com.zy.tank.entity.Tank;
+import com.zy.tank.entity.Wall;
+import com.zy.tank.manager.PropertyMgr;
 import com.zy.tank.tankenum.Direction;
 import com.zy.tank.tankenum.Group;
 
@@ -24,9 +28,7 @@ public class TankFrame extends Frame {
     public static final int GAME_HEIGHT = 600;
     public static final TankFrame INSTANCE = new TankFrame();
     private Player player;
-    private Tank enemy;
-    private List<Bullt> bullts;
-
+    private List<AbstraceGameObject> gameObjects;
     private TankFrame() {
         this.setTitle("tank war");
         this.setLocation(400, 100);
@@ -37,31 +39,61 @@ public class TankFrame extends Frame {
                 System.exit(0);
             }
         });
-        player = new Player(100, 100, Direction.R, Group.GOOD);
-        enemy = new Tank(200, 200, Direction.D, Group.BAD);
+        
+        initGameObjects();
 
-        bullts = new ArrayList<>();
         // 使用了观察者模式，观看坦克第一期
         this.addKeyListener(new TankListener());
+    }
+
+    private void initGameObjects() {
+        player = new Player(100, 100, Direction.R, Group.GOOD);
+        gameObjects = new ArrayList<>();
+        for (int i = 0; i < Integer.parseInt(PropertyMgr.getPropertyValue("initTankCount")); i++) {
+            gameObjects.add(new Tank(100 + 50 * i, 200, Direction.D, Group.BAD));
+        }
+        gameObjects.add(new Wall(300, 200, 200, 30));
     }
 
     @Override
     public void paint(Graphics g) {
         Color c = g .getColor();
         g.setColor(Color.WHITE);
-        g.drawString("bullets:" + bullts.size(), 0, 50);
         g.setColor(c);
-
         player.paint(g);
-        enemy.paint(g);
-        for (int i = 0; i < bullts.size(); i++) {
-            bullts.get(i).collideWithTank(enemy);
-            if (!bullts.get(i).isAlive()) {
-                bullts.remove(i);
-            } else {
-                bullts.get(i).paint(g);
-            }
+
+        for (int i = 0; i < gameObjects.size(); i++) {
+            gameObjects.get(i).paint(g);
         }
+
+
+//        for (int i = 0; i < enemies.size(); i++) {
+//            if (!enemies.get(i).isAlive()) {
+//                enemies.remove(i);
+//            } else {
+//                enemies.get(i).paint(g);
+//            }
+//        }
+//
+//        for (int i = 0; i < bullts.size(); i++) {
+//            for (int j = 0; j < enemies.size(); j++) {
+//                bullts.get(i).collideWithTank(enemies.get(j));
+//            }
+//
+//            if (!bullts.get(i).isAlive()) {
+//                bullts.remove(i);
+//            } else {
+//                bullts.get(i).paint(g);
+//            }
+//        }
+//
+//        for (int i = 0; i < explodes.size(); i++) {
+//            if (!explodes.get(i).isAlive()) {
+//                explodes.remove(i);
+//            } else {
+//                explodes.get(i).paint(g);
+//            }
+//        }
     }
 
     Image offScreenImage = null;
@@ -80,8 +112,8 @@ public class TankFrame extends Frame {
         g.drawImage(offScreenImage, 0, 0, null);
     }
 
-    public void add(Bullt bullt) {
-        this.bullts.add(bullt);
+    public void add(AbstraceGameObject bullt) {
+        gameObjects.add(bullt);
     }
 
 

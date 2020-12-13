@@ -3,29 +3,20 @@ package com.zy.tank.entity;
 import com.zy.tank.TankFrame;
 import com.zy.tank.tankenum.Direction;
 import com.zy.tank.tankenum.Group;
-import com.zy.tank.util.ResourceMgr;
-import org.junit.Assert;
+import com.zy.tank.manager.ResourceMgr;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Random;
 
-public class Tank {
+public class Tank extends AbstraceGameObject {
     private int x;
     private int y;
+    private int oldX;
+    private int oldY;
+    private int width;
+    private int height;
     private Direction direction;
-    // left标识
-    private boolean bL;
-    // right标识
-    private boolean bR;
-    // up标识
-    private boolean bU;
-    // down标识
-    private boolean bD;
-    private static final int SPEED = 5;
+    private static final int SPEED = 2;
     private boolean moving = true;
     private Group group;
     private boolean isAlive = true;
@@ -33,12 +24,19 @@ public class Tank {
     public Tank(int x, int y, Direction direction,Group group) {
         this.x = x;
         this.y = y;
+        oldX = x;
+        oldY = y;
+        width = ResourceMgr.goodTankU.getWidth();
+        height = ResourceMgr.goodTankU.getHeight();
         this.direction = direction;
         this.group = group;
     }
 
     public void paint(Graphics g) {
         if (!isAlive) {
+            return;
+        }
+        if (!moving) {
             return;
         }
 
@@ -77,8 +75,9 @@ public class Tank {
                 y -= SPEED;
                 break;
         }
+        boundsCheck();
         Random random = new Random();
-        if (random.nextInt(100) > 90) {
+        if (random.nextInt(100) > 95) {
             direction = Direction.randmDirection();
             fire();
         }
@@ -89,6 +88,22 @@ public class Tank {
         int by = y + ResourceMgr.goodTankU.getHeight()/2 - ResourceMgr.bulletU.getHeight()/2;
         TankFrame.INSTANCE.add(new Bullt(bx, by, direction, Group.BAD));
     }
+
+    private void boundsCheck() {
+        if (x < 0 || y < 30 || x + width > TankFrame.GAME_WIDTH || y + height > TankFrame.GAME_HEIGHT) {
+            back();
+        }
+    }
+
+    private void back() {
+        this.x = oldX;
+        this.y = oldY;
+    }
+
+    private void stop() {
+        this.moving = false;
+    }
+
 
     public int getX() {
         return x;

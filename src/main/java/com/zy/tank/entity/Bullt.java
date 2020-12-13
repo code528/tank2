@@ -3,11 +3,11 @@ package com.zy.tank.entity;
 import com.zy.tank.TankFrame;
 import com.zy.tank.tankenum.Direction;
 import com.zy.tank.tankenum.Group;
-import com.zy.tank.util.ResourceMgr;
+import com.zy.tank.manager.ResourceMgr;
 
 import java.awt.*;
 
-public class Bullt {
+public class Bullt extends AbstraceGameObject {
     private int x;
     private int y;
     private Direction direction;
@@ -74,7 +74,7 @@ public class Bullt {
     }
 
     public void collideWithTank(Tank tank) {
-        if (!tank.isAlive()) {
+        if (!this.isAlive() || !tank.isAlive()) {
             return;
         }
         if (tank.getGroup() == this.group) {
@@ -85,6 +85,7 @@ public class Bullt {
         if (bulltRectangle.intersects(tankRectangle)) {
             this.die();
             tank.die();
+            TankFrame.INSTANCE.add(new Explode(tank.getX(), tank.getY()));
         }
     }
 
